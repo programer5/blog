@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.concurrent.Flow;
 
 @Slf4j
@@ -14,7 +15,7 @@ import java.util.concurrent.Flow;
 @RequiredArgsConstructor
 public class PostService {
 
-    private final PostRepository repository;
+    private final PostRepository postRepository;
 
     public void write(PostCreate postCreate) {
 
@@ -23,6 +24,14 @@ public class PostService {
                 .content(postCreate.getContent())
                 .build();
 
-        repository.save(post);
+        postRepository.save(post);
+    }
+
+    public Post get(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 글입니다."));
+
+        return post;
+
     }
 }
