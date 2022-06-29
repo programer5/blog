@@ -4,22 +4,21 @@ import com.blog.domain.Post;
 import com.blog.repository.PostRepository;
 import com.blog.request.PostCreate;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.web.JsonPath;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -121,6 +120,35 @@ class PostControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(post.getId()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.title").value(post.getTitle()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.content").value(post.getContent()))
+                .andDo(MockMvcResultHandlers.print());
+    }
+
+    @Test
+    @DisplayName("글 여러개 조회")
+    void test5() throws Exception {
+        Post post1 = Post.builder()
+                .title("foo1")
+                .content("bar1")
+                .build();
+
+        Post post2 = Post.builder()
+                .title("foo2")
+                .content("bar2")
+                .build();
+
+        postRepository.saveAll(List.of(post1, post2));
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/posts")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.is(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(post1.getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value(post1.getTitle()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].content").value(post1.getContent()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id").value(post2.getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].title").value(post2.getTitle()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].content").value(post2.getContent()))
                 .andDo(MockMvcResultHandlers.print());
     }
 
