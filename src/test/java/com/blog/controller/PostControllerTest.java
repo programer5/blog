@@ -19,6 +19,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -126,30 +128,25 @@ class PostControllerTest {
     @Test
     @DisplayName("글 여러개 조회")
     void test5() throws Exception {
-        Post post1 = Post.builder()
-                .title("foo1")
-                .content("bar1")
-                .build();
+        List<Post> requestPosts = IntStream.range(1, 31)
+                .mapToObj(i ->
+                        Post.builder()
+                                .title("호돌맨 제목 " + i)
+                                .content("반포자이 " + i)
+                                .build()
+                )
+                .collect(Collectors.toList());
 
-        Post post2 = Post.builder()
-                .title("foo2")
-                .content("bar2")
-                .build();
+        postRepository.saveAll(requestPosts);
 
-        postRepository.saveAll(List.of(post1, post2));
-
-        mockMvc.perform(MockMvcRequestBuilders.get("/posts")
+        mockMvc.perform(MockMvcRequestBuilders.get("/posts?page=1&sort=id,desc")
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.is(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(post1.getId()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value(post1.getTitle()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].content").value(post1.getContent()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id").value(post2.getId()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].title").value(post2.getTitle()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].content").value(post2.getContent()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.is(5)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value(30))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].title").value("호돌맨 제목 30"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].content").value("반포자이 30"))
                 .andDo(MockMvcResultHandlers.print());
     }
-
 }
