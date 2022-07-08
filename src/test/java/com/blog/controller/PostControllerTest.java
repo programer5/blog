@@ -66,6 +66,7 @@ class PostControllerTest {
     void test2() throws Exception {
 
         PostCreate postCreate = PostCreate.builder()
+                .title("바보")
                 .content("내용입니다.")
                 .build();
 
@@ -78,7 +79,7 @@ class PostControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isBadRequest())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.code").value("400"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.validation.title").value("타이틀을 입력해주세요."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.validation.title").value("제목에 바보를 포함할 수 없습니다."))
                 .andDo(MockMvcResultHandlers.print());
     }
 
@@ -145,7 +146,7 @@ class PostControllerTest {
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.is(10)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value(30))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value(33))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.[0].title").value("호돌맨 제목 30"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.[0].content").value("반포자이 30"))
                 .andDo(MockMvcResultHandlers.print());
@@ -170,7 +171,7 @@ class PostControllerTest {
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.is(10)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value(30))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value(63))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.[0].title").value("호돌맨 제목 30"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.[0].content").value("반포자이 30"))
                 .andDo(MockMvcResultHandlers.print());
